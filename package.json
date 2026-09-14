@@ -1,16 +1,25 @@
 {
   "name": "skyfire-reg-tool",
   "version": "1.0.0",
+  "description": "Account registration and launcher portal for Skyfire Emulator",
   "main": "main.js",
+  "author": "Skyfire Dev Team",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "electron-store": "^8.2.0"
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.9.0" 
   },
   "devDependencies": {
-    "electron": "^44.3.0",
-    "mysql2": "^3.24.4"
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+	
+    "electron": "^44.3.0"
   }
 }

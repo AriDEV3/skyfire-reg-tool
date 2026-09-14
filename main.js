@@ -2,10 +2,15 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const mysql = require('mysql2/promise');
 const crypto = require('crypto');
-const { execFile, exec } = require('child_process'); // exec hinzugefügt
+const { execFile } = require('child_process');
 const fs = require('fs');
 
-require('dotenv').config();
+// REPARATUR: Sucht die .env Datei außerhalb der ASAR-Verpackung, wenn die App kompiliert ist
+const envPath = app.isPackaged 
+    ? path.join(process.resourcesPath, '../.env') // Liegt direkt neben der .exe
+    : path.join(__dirname, '.env');               // Im Dev-Modus
+
+require('dotenv').config({ path: envPath });
 
 const dbConfig = {
     host: process.env.DB_HOST || '127.0.0.1',
