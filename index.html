@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Skyfire Portal</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #000 url('./background.jpg') no-repeat;
+            background-size: 75% 100%;
+            background-position: left center;
+            color: #fff; 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.7) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .window-drag-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: calc(100% - 420px); 
+            height: 50px;
+            -webkit-app-region: drag;
+            z-index: 10;
+        }
+
+        .reg-box { 
+            background: rgba(15, 20, 18, 0.9); 
+            backdrop-filter: blur(10px);
+            border-left: 3px solid #00ffbc; 
+            padding: 50px 40px; 
+            height: 100vh;
+            width: 420px; 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: -15px 0 35px rgba(0,0,0,0.8);
+            z-index: 3; 
+            position: relative;
+        }
+
+        h2 { 
+            text-align: center; 
+            margin-top: 0;
+            margin-bottom: 5px; 
+            color: #00ffbc; 
+            font-size: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 255, 188, 0.4);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 12px;
+            color: #ffb300; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 35px;
+        }
+
+        label { 
+            display: block; 
+            margin: 15px 0 5px; 
+            font-size: 13px; 
+            color: #a4b0be;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            margin-bottom: 5px; 
+            border: 1px solid rgba(0, 255, 188, 0.2); 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            background: rgba(30, 39, 35, 0.7); 
+            color: #fff; 
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00ffbc;
+            background: rgba(30, 39, 35, 0.9);
+            box-shadow: 0 0 8px rgba(0, 255, 188, 0.3);
+        }
+
+        .action-btn { 
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid #00ffbc;
+            background: rgba(0, 255, 188, 0.1); 
+            color: #00ffbc; 
+            font-weight: bold; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin-top: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover { 
+            background: #00ffbc; 
+            color: #121715;
+            box-shadow: 0 0 15px rgba(0, 255, 188, 0.5);
+        }
+		
+		/* Server-Steuerung Layout */
+        .server-actions {
+		    display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .server-btn {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #00ffbc;
+            background: rgba(0, 255, 188, 0.05);
+            color: #00ffbc;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .server-btn:hover {
+            background: rgba(0, 255, 188, 0.2);
+            box-shadow: 0 0 8px rgba(0, 255, 188, 0.3);
+        }
+
+        .bottom-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .play-group {
+            display: flex;
+            flex: 1.2;
+            gap: 5px;
+        }
+
+        .play-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ffb300;
+            background: rgba(255, 179, 0, 0.1);
+            color: #ffb300;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .play-btn:hover:not(:disabled) {
+            background: #ffb300;
+            color: #121715;
+            box-shadow: 0 0 12px rgba(255, 179, 0, 0.4);
+        }
+        
+        .play-btn:disabled {
+            border-color: #4b4b5e;
+            background: rgba(75, 75, 94, 0.05);
+            color: #636e72;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .settings-btn {
+            padding: 10px 12px;
+            border: 1px solid #a4b0be;
+            background: rgba(164, 176, 190, 0.1);
+            color: #a4b0be;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .settings-btn:hover {
+            background: #a4b0be;
+            color: #121715;
+        }
+
+        .close-app-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ff4757;
+            background: rgba(255, 71, 87, 0.05);
+            color: #ff4757;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .close-app-btn:hover {
+            background: #ff4757;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(255, 71, 87, 0.4);
+        }
+
+        #status { 
+            text-align: center; 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-size: 15px;
+            min-height: 20px;
+        }
+        .success { color: #2ecc71; text-shadow: 0 0 8px rgba(46, 204, 113, 0.3); }
+        .error { color: #e74c3c; text-shadow: 0 0 8px rgba(231, 76, 60, 0.3); }
+    </style>
+</head>
+<body>
+
+<div class="window-drag-bar"></div>
+
+<div class="reg-box">
+    <h2>SKYFIRE</h2>
+    <div class="subtitle">Account Creation</div>
+
+    <form id="regForm">
+        <label>Username</label>
+        <input type="text" id="username" required minlength="3" maxlength="16" autocomplete="off">
+        <label>Email Address</label>
+        <input type="email" id="email" required autocomplete="off">
+        <label>Password</label>
+        <input type="password" id="password" required minlength="4">
+        <button type="submit" class="action-btn">Create Account</button>
+    </form>
+    
+    <div id="status"></div>
+
+    <!-- BUTTON FÜR AUTHSERVER -->
+    <div class="server-actions">
+        <button type="button" class="server-btn" id="startAuth">Start Authserver</button>
+        <button type="button" class="server-btn" id="startWorld">Start Worldserver</button>
+	</div>
+
+    <div class="bottom-actions">
+        <div class="play-group">
+            <button type="button" class="play-btn" id="playGame" disabled title="Bitte wähle zuerst deinen Wow.exe Pfad über das Zahnrad aus">Play Game</button>
+            <button type="button" class="settings-btn" id="setPath" title="Wow.exe Pfad konfigurieren">⚙️</button>
+        </div>
+        <button type="button" class="close-app-btn" id="exitApp">Close Application</button>
+    </div>
+</div>
+
+<script>
+    const regForm = document.getElementById('regForm');
+    const statusDiv = document.getElementById('status');
+    const playGameBtn = document.getElementById('playGame');
+
+    // Startet die App-Prüfung (Wird bei RAM-Speicherung immer blockiert starten)
+    async function initPathSettings() {
+        const check = await window.api.checkWowPath();
+        if (check.exists) {
+            playGameBtn.disabled = false;
+            playGameBtn.removeAttribute('title');
+        }
+    }
+    initPathSettings();
+
+    // Event Listener für den Authserver-Start
+    document.getElementById('startAuth').addEventListener('click', async () => {
+        statusDiv.className = '';
+        statusDiv.innerText = 'Starte Authserver...';
+        const response = await window.api.launchAuthServer();
+        if (!response.success && response.message) {
+            statusDiv.className = 'error';
+            statusDiv.innerText = response.message;
+        } else {
+            statusDiv.innerText = 'Authserver-Befehl gesendet.';
+        }
+    });
+	
+	// Event Listener für den Worldserver-Start
+    document.getElementById('startWorld').addEventListener('click', async () => {
+        statusDiv.className = '';
+        statusDiv.innerText = 'Starte Worldserver...';
+        const response = await window.api.launchWorldServer();
+        if (!response.success && response.message) {
+            statusDiv.className = 'error';
+            statusDiv.innerText = response.message;
+        } else {
+            statusDiv.innerText = 'Worldserver-Befehl gesendet.';
+        }
+    });
+
+    document.getElementById('playGame').addEventListener('click', async () => {
+        statusDiv.className = '';
+        statusDiv.innerText = 'Starte Spielclient...';
+        const response = await window.api.launchGame();
+        if(!response.success && response.message) {
+            statusDiv.className = 'error';
+            statusDiv.innerText = response.message;
+        } else {
+            statusDiv.innerText = '';
+        }
+    });
+
+    document.getElementById('setPath').addEventListener('click', async () => {
+        statusDiv.className = '';
+        const response = await window.api.selectWowPath();
+        if(response.success) {
+            statusDiv.className = 'success';
+            statusDiv.innerText = 'Wow.exe Pfad temporär geladen!';
+            playGameBtn.disabled = false;
+            playGameBtn.removeAttribute('title');
+        }
+    });
+
+    document.getElementById('exitApp').addEventListener('click', () => {
+        regForm.reset();
+        statusDiv.className = 'error';
+        statusDiv.innerText = 'Closing Portal...';
+        setTimeout(() => {
+            window.api.closeApp();
+        }, 1000);
+    });
+
+    regForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        statusDiv.className = '';
+        statusDiv.innerText = 'Erstelle Account in der Datenbank...';
+
+        const data = {
+            username: document.getElementById('username').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value
+        };
+
+        const response = await window.api.register(data);
+        statusDiv.innerText = response.message;
+        statusDiv.className = response.success ? 'success' : 'error';
+        
+        if (response.success) {
+            regForm.reset();
+        }
+    });
+</script>
+</body>
+</html>
